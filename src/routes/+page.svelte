@@ -106,7 +106,7 @@
 			<div class="max-w-4xl">
 				<!-- Static welcome text, one line, no typing animation -->
 				<h1 class="text-6xl md:text-7xl font-serif font-bold leading-tight mb-12">
-					Welcome to my portfolio
+					Hello  I'm <span class="text-white/70">Srujan KM</span>
 				</h1>
 
 				<p class="text-lg text-white/70 mb-12 leading-relaxed max-w-2xl">
