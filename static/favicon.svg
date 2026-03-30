@@ -1,0 +1,14 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Solid High-Contrast Background -->
+  <rect width="64" height="64" rx="14" fill="#000"/>
+  
+  <!-- Stylized Geometric SKM -->
+  <!-- The 'S' and 'K' interlocked -->
+  <path d="M18 20H38V28H22C20.8954 28 20 28.8954 20 30V34C20 35.1046 20.8954 36 22 36H42V44H18" fill="white"/>
+  
+  <!-- The vertical stem of 'K' built into the right of S -->
+  <path d="M42 20V44L48 20M42 32L48 44" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Subtle line representing software developer -->
+  <rect x="18" y="48" width="28" height="2" fill="white" opacity="0.4"/>
+</svg>

@@ -1,544 +1,848 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  // State
   let currentQuoteIndex = $state(0);
-  let currentProjectIndex = $state(0);
   let isVideoLoaded = $state(false);
   let mouseX = $state(0);
   let mouseY = $state(0);
   let cursorX = $state(0);
   let cursorY = $state(0);
   let isHovering = $state(false);
+  let scrollProgress = $state(0);
 
-  const quotes = [
-    "Building scalable systems",
-    "Code that matters",
-    "Innovation through simplicity",
+  // Hero Typing
+  const heroWords = [
+    "Freelancer Web Developer",
+    "SEO Strategist",
+    "Application Developer",
   ];
-
-  const heroWords = ["Developer", "Engineer", "Creator", "Builder"];
   let currentWordIndex = $state(0);
   let displayText = $state("");
   let isDeleting = $state(false);
 
+  // Projects - Enhanced with images
   const projects = [
     {
-      title: "GFS Real Estate Platform",
-      year: "2024",
+      title: "GFS Real Estate Website",
+      category: "Real Estate & CRM",
+      year: "2025",
+      image: "/projects/gfs.png",
       description:
-        "Developed comprehensive real estate platform for GFS Developments, a global property developer operating across UAE, UK, Saudi Arabia, Germany, Canada, USA, Italy, Pakistan, Turkey, Spain, France, and Egypt. Built property listing system, CRM integration, and automated inquiry management for luxury residential and commercial projects.",
-      tags: ["Next.js", "Node.js", "PostgreSQL", "AWS", "Real Estate CRM"],
-      link: "https://gfs.nezdev.com/",
+        "A global property solution spanning UAE, UK, and beyond. Built with a robust property listing engine and automated inquiry management.",
+      stack: ["Reactjs", "PostgreSQL", "AWS", "CRM"],
+      link: "https://gfs-web-hrby4.ondigitalocean.app/",
+      accent: "from-amber-500/20 to-transparent",
     },
     {
       title: "PayBazaar Fintech Portal",
-      year: "2024",
+      category: "Fintech & Banking",
+      year: "2025",
+      image: "/projects/paybazaar.png",
       description:
-        "Enterprise-grade fintech solution with comprehensive role-based access control. Implemented DMT (Domestic Money Transfer), AEPS, automated KYC verification, wallet management, commission tracking, and secure banking API integrations for seamless financial transactions.",
-      tags: ["Next.js", "Golang", "PostgreSQL", "Banking APIs", "Security"],
-      link: "#",
+        "Enterprise fintech portal with DMT, AEPS, and automated KYC. Secure banking API integrations for large-scale transactions.",
+      stack: ["React js", "Golang", "AWS", "Security"],
+      link: "https://paybazaar.in",
+      accent: "from-blue-500/20 to-transparent",
     },
     {
-      title: "Cashew Trading E-Commerce",
-      year: "2024",
+      title: "South Canara Agro Mart",
+      category: "E-Commerce & Logistics",
+      year: "2026",
+      image: "/projects/southcanaragromart.png",
       description:
-        "Global B2B e-commerce platform for cashew and dry fruits trading worldwide. Built with multi-currency support, real-time inventory management, bulk order processing, international shipping integration, and supplier-buyer marketplace with quality certifications.",
-      tags: ["React", "Node.js", "MongoDB", "Payment Gateway", "Logistics"],
-      link: "#",
+        "Professional B2B e-commerce platform for cashew trading. Features real-time inventory tracking and optimized trade logistics.",
+      stack: ["React", "Node.js", "MongoDB", "Logistics"],
+      link: "https://southcanaraagromart.com",
+      appLink:
+        "http://files.southcanaraagromart.com/application/application-36369344-3bdd-4f44-a97d-f7bd8f806ff4.apk",
+      accent: "from-emerald-500/20 to-transparent",
     },
     {
       title: "Chartered Accountant Dashboard",
+      category: "Enterprise ERP",
       year: "2025",
+      image: "/projects/ca_dashboard_mockup_indian_v2.png",
       description:
-        "Comprehensive management system for CA firms with biometric attendance, leave management, real-time messaging, auditor communication portal, client tracking, document management, and automated reporting. Features include task assignment and deadline tracking.",
-      tags: ["SvelteKit", "Golang", "PostgreSQL", "WebSocket", "Biometric"],
+        "Premium management suite for Indian CA firms. Features GST compliance tracking and automated audit workflows.",
+      stack: ["SvelteKit", "Golang", "WebSocket", "ERP"],
       link: "#",
-    },
-    {
-      title: "E-Commerce & Billing Suite",
-      year: "2024",
-      description:
-        "Developed multiple e-commerce platforms and billing software solutions for retail businesses. Features include inventory management, point-of-sale integration, invoice generation, GST compliance, customer analytics, and multi-store management with cloud sync.",
-      tags: ["React", "Express", "MongoDB", "Invoice System", "GST"],
-      link: "#",
-    },
-    {
-      title: "Telephone Recharge Platform",
-      year: "2025",
-      description:
-        "Serverless recharge platform with Golang and AWS Lambda. Implemented multi-role APIs, operator integrations, secure JWT authentication, commission management, async email notifications using RabbitMQ, and real-time transaction monitoring.",
-      tags: ["Golang", "AWS Lambda", "MongoDB", "RabbitMQ", "JWT"],
-      link: "#",
-    },
-    {
-      title: "VoiceVerse AI Assistant",
-      year: "2025",
-      description:
-        "AI-powered voice assistant leveraging Whisper AI for speech recognition and LLaMA 3.2 for natural language understanding. Implemented RAG (Retrieval-Augmented Generation) with Qdrant vector database for context-aware responses and knowledge retrieval.",
-      tags: ["Whisper AI", "LLaMA 3.2", "RAG", "Qdrant", "Python"],
-      link: "#",
-    },
-    {
-      title: "Biometric Attendance System",
-      year: "2025",
-      description:
-        "Enterprise biometric authentication system with Flutter dashboard. Real-time attendance tracking, facial recognition, automated reporting, leave management, shift scheduling, and cloud synchronization with analytics and compliance reports.",
-      tags: ["Flutter", "Golang", "WebSocket", "AWS", "Biometric"],
-      link: "#",
+      accent: "from-purple-500/20 to-transparent",
     },
   ];
 
   const techStack = [
-    {
-      name: "Golang",
-      logo: "https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png",
-    },
-    { name: "Node.js", logo: "https://nodejs.org/static/images/logo.svg" },
-    {
-      name: "Python",
-      logo: "https://www.python.org/static/community_logos/python-logo-generic.svg",
-    },
+    { name: "Golang", logo: "https://cdn.simpleicons.org/go/white" },
+    { name: "Node.js", logo: "https://cdn.simpleicons.org/nodedotjs/white" },
     {
       name: "TypeScript",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg",
+      logo: "https://cdn.simpleicons.org/typescript/white",
     },
-    {
-      name: "JavaScript",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
-    },
-    {
-      name: "React",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
-    },
-    {
-      name: "React.js",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
-    },
-    {
-      name: "Next.js",
-      logo: "https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_light_background.png",
-    },
-    {
-      name: "SvelteKit",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/1/1b/Svelte_Logo.svg",
-    },
-    {
-      name: "Flutter",
-      logo: "https://storage.googleapis.com/cms-storage-bucket/4fd0db61df0567c0f352.png",
-    },
-    {
-      name: "Tailwind CSS",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg",
-    },
-    {
-      name: "AWS",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg",
-    },
-    {
-      name: "MongoDB",
-      logo: "https://www.mongodb.com/assets/images/global/favicon.ico",
-    },
+    { name: "Next.js", logo: "https://cdn.simpleicons.org/nextdotjs/white" },
+    { name: "Svelte", logo: "https://cdn.simpleicons.org/svelte/white" },
+    { name: "React Native", logo: "https://cdn.simpleicons.org/react/white" },
+    { name: "Docker", logo: "https://cdn.simpleicons.org/docker/white" },
+    { name: "Git", logo: "https://cdn.simpleicons.org/git/white" },
+    { name: "GitHub", logo: "https://cdn.simpleicons.org/github/white" },
+    { name: "Vercel", logo: "https://cdn.simpleicons.org/vercel/white" },
+    { name: "Redis", logo: "https://cdn.simpleicons.org/redis/white" },
     {
       name: "PostgreSQL",
-      logo: "https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg",
-    },
-    { name: "Redis", logo: "https://redis.io/images/redis-white.png" },
-    {
-      name: "Docker",
-      logo: "https://www.docker.com/wp-content/uploads/2022/03/Moby-logo.png",
-    },
-    {
-      name: "REST API",
-      logo: "https://img.icons8.com/color/96/api-settings.png",
-    },
-    {
-      name: "GraphQL",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg",
-    },
-    {
-      name: "WebSocket",
-      logo: "https://img.icons8.com/color/96/websocket.png",
-    },
-    {
-      name: "Git",
-      logo: "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png",
-    },
-    {
-      name: "Linux",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg",
+      logo: "https://cdn.simpleicons.org/postgresql/white",
     },
   ];
 
-  const experiences = [
+  const reviews = [
     {
-      company: "Levion Studio",
-      role: "Co-Founder & Full-Stack Developer",
-      period: "Oct 2025 - Present",
-      location: "Bengaluru, Karnataka",
-      description:
-        "Founded a digital solutions studio specializing in modern web applications and scalable systems. Leading full-stack development, client projects, and technical strategy. Building innovative solutions with cutting-edge technologies and delivering exceptional digital experiences.",
+      name: "Deekshith",
+      role: "Founder, South Canara Agro Mart",
+      content:
+        "The app and website are absolute game-changers. Srujan is a complete workaholic who crushed every deadline we set. His dedication to the project was exceptional—highly recommended for high-pressure timelines!",
+      stars: 5,
     },
     {
-      company: "Vithsutra Technologies",
-      role: "Co-Founder & Backend Developer",
-      period: "Apr 2025 - Oct 2025",
-      location: "Moodbidri, Karnataka",
-      description:
-        "Co-founded and engineered serverless backend systems with Golang and AWS Lambda. Developed biometric solutions with real-time analytics, integrated async messaging systems, and built scalable infrastructure for enterprise applications.",
+      name: "Nithin Kumar",
+      role: "Team Lead, GFS Developments",
+      content:
+        "Srujan's collaborative spirit is world-class. He worked day and night to ensure the GFS platform was perfect. Thank you buddy, your effort and technical expertise are truly commendable. Great work!",
+      stars: 4.5,
     },
     {
-      company: "SR Automation",
-      role: "Full Stack Developer Intern",
-      period: "Dec 2024 - Mar 2025",
-      location: "Bangalore, Karnataka",
-      description:
-        "Built full-stack applications with SvelteKit and Go. Optimized REST APIs, implemented real-time features, and deployed scalable infrastructure on cloud platforms. Worked on automation systems and dashboard development.",
+      name: "CA Arjun Rao",
+      role: "Senior Partner, Audit & Compliance",
+      content:
+        "Impressed by how Srujan integrated complex requirements: auditor tracking, check-in/out systems, and real-time messaging for my firm. He understood the auditing workflow perfectly and built a seamless suite.",
+      stars: 4.5,
+    },
+    {
+      name: "GV Infotech Team",
+      role: "Strategic Lead, PayBazaar Fintech",
+      content:
+        "Srujan and Shubhang have a clear vision for fintech reliability. From DMT and AEPS to mobile recharges, they made every transaction smooth and secure. The dashboard is incredibly intuitive and robust.",
+      stars: 4.5,
     },
   ];
-
-  let scrollContainer: HTMLElement;
 
   onMount(() => {
-    // Typing animation
-    let typingSpeed = 150;
-    let deletingSpeed = 100;
-    let pauseTime = 2000;
-
+    // Typing Animation
     const typeWriter = () => {
       const currentWord = heroWords[currentWordIndex];
-
       if (!isDeleting && displayText.length < currentWord.length) {
         displayText = currentWord.slice(0, displayText.length + 1);
-        setTimeout(typeWriter, typingSpeed);
+        setTimeout(typeWriter, 100);
       } else if (isDeleting && displayText.length > 0) {
         displayText = currentWord.slice(0, displayText.length - 1);
-        setTimeout(typeWriter, deletingSpeed);
+        setTimeout(typeWriter, 50);
       } else if (!isDeleting && displayText.length === currentWord.length) {
         setTimeout(() => {
           isDeleting = true;
           typeWriter();
-        }, pauseTime);
+        }, 2000);
       } else if (isDeleting && displayText.length === 0) {
         isDeleting = false;
         currentWordIndex = (currentWordIndex + 1) % heroWords.length;
         setTimeout(typeWriter, 500);
       }
     };
-
     typeWriter();
 
-    // Custom cursor
+    // Custom Cursor
     const handleMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
     };
-
     window.addEventListener("mousemove", handleMouseMove);
 
-    // Smooth cursor follow
     const animateCursor = () => {
-      cursorX += (mouseX - cursorX) * 0.1;
-      cursorY += (mouseY - cursorY) * 0.1;
+      cursorX += (mouseX - cursorX) * 0.15;
+      cursorY += (mouseY - cursorY) * 0.15;
       requestAnimationFrame(animateCursor);
     };
     animateCursor();
 
-    // Rotate quotes
-    const quoteInterval = setInterval(() => {
-      currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
-    }, 3500);
+    // Scroll Observer
+    const handleScroll = () => {
+      const winHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY;
+      scrollProgress = (scrollTop / (docHeight - winHeight)) * 100;
+    };
+    window.addEventListener("scroll", handleScroll);
 
-    // Smooth scroll for navigation
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", (e) => {
-        e.preventDefault();
-        const target = anchor.getAttribute("href");
-        if (target) {
-          document
-            .querySelector(target)
-            ?.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-    });
+    // Intersection Observer for Reveal
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal-visible");
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
 
-    setTimeout(() => {
-      isVideoLoaded = true;
-    }, 500);
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      clearInterval(quoteInterval);
+      window.removeEventListener("scroll", handleScroll);
     };
   });
 </script>
 
 <svelte:head>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin="anonymous"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap"
     rel="stylesheet"
   />
-  <style>
-    * {
-      scroll-behavior: smooth !important;
-    }
-    body {
-      overflow-x: hidden;
-    }
-  </style>
+  <title>Srujan KM | Freelance Full-Stack Developer India</title>
+  <meta
+    name="description"
+    content="Professional freelance web developer and full-stack software engineer in India. I build high-performance Golang backends, React, Next.js & SvelteKit web apps for global clients."
+  />
+  <meta
+    name="keywords"
+    content="freelance web developer, full stack developer India, Golang developer freelance, Next.js developer freelance, React expert India, web app developer, hire software developer"
+  />
 </svelte:head>
 
-<!-- Custom Cursor -->
+<!-- Cursor -->
 <div
-  class="custom-cursor"
-  style="transform: translate({cursorX}px, {cursorY}px)"
-  class:cursor-hovering={isHovering}
-></div>
+  class="fixed pointer-events-none z-[9999] mix-blend-exclusion text-white hidden md:block"
+  style="left: {cursorX}px; top: {cursorY}px; transform: translate(-50%, -50%)"
+>
+  <div
+    class="cursor-dot {isHovering
+      ? 'scale-[4]'
+      : 'scale-1'} transition-transform duration-300"
+  ></div>
+</div>
 
-<div class="min-h-screen bg-black text-white cursor-none">
-  <!-- Minimal Navbar -->
-  <nav class="fixed top-0 w-full z-50 mix-blend-difference">
-    <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-      <div class="font-space text-sm font-medium tracking-wider">SK</div>
-      <div class="flex gap-8 text-sm font-inter font-light">
-        <a href="#hero" class="hover:opacity-60 transition-opacity">Work</a>
-        <a href="#about" class="hover:opacity-60 transition-opacity">About</a>
-        <a href="#contact" class="hover:opacity-60 transition-opacity"
-          >Contact</a
-        >
-      </div>
+<div
+  class="bg-[#050505] text-white selection:bg-white/20 overflow-x-hidden pt-6"
+>
+  <!-- Progress Bar -->
+  <div
+    class="fixed top-0 left-0 h-[2px] bg-white z-[100]"
+    style="width: {scrollProgress}%"
+  ></div>
+
+  <!-- Navbar -->
+  <nav
+    class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[min(90vw,600px)] backdrop-blur-2xl border border-white/10 rounded-full py-4 px-8 flex justify-center items-center transition-all duration-300 hover:border-white/20"
+  >
+    <div
+      class="flex gap-4 md:gap-8 text-[10px] md:text-xs font-medium uppercase tracking-[0.2em] opacity-60"
+    >
+      <a
+        href="#services"
+        class="hover:text-white hover:opacity-100 transition-all cursor-none"
+        on:mouseenter={() => (isHovering = true)}
+        on:mouseleave={() => (isHovering = false)}>Expertise</a
+      >
+      <a
+        href="#work"
+        class="hover:text-white hover:opacity-100 transition-all cursor-none"
+        on:mouseenter={() => (isHovering = true)}
+        on:mouseleave={() => (isHovering = false)}>Portfolio</a
+      >
+      <a
+        href="/blog"
+        class="hover:text-white hover:opacity-100 transition-all cursor-none hidden sm:block"
+        on:mouseenter={() => (isHovering = true)}
+        on:mouseleave={() => (isHovering = false)}>Articles</a
+      >
+      <a
+        href="#reviews"
+        class="hover:text-white hover:opacity-100 transition-all cursor-none hidden sm:block"
+        on:mouseenter={() => (isHovering = true)}
+        on:mouseleave={() => (isHovering = false)}>Reviews</a
+      >
+      <a
+        href="#contact"
+        class="hover:text-white hover:opacity-100 transition-all cursor-none"
+        on:mouseenter={() => (isHovering = true)}
+        on:mouseleave={() => (isHovering = false)}>Contact</a
+      >
     </div>
   </nav>
 
   <!-- Hero Section -->
   <section
-    id="hero"
-    class="relative min-h-screen flex items-center justify-center overflow-hidden"
+    class="relative min-h-[110vh] flex items-center justify-center px-6 overflow-hidden"
   >
-    <!-- Animated Grid Background -->
-    <div class="absolute inset-0 grid-background"></div>
-
-    <!-- Video Background - No overlay -->
+    <!-- Sophisticated Background -->
     <div class="absolute inset-0 z-0">
-      <video
-        class="w-full h-full object-cover opacity-30"
-        autoplay
-        loop
-        muted
-        playsinline
-      >
-        <source src="/vedio/hero.mp4" type="video/mp4" />
+      <div
+        class="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/4"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px] translate-y-1/3 -translate-x-1/4"
+      ></div>
+      <div class="grid-layer opacity-[0.03]"></div>
+    </div>
+
+    <!-- Video Background Overlay -->
+    <div
+      class="absolute inset-0 z-0 pointer-events-none opacity-20 filter grayscale contrast-[150%]"
+    >
+      <video autoplay loop muted playsinline class="w-full h-full object-cover">
+        <source src="/videos/hero.mp4" type="video/mp4" />
       </video>
     </div>
 
-    <!-- Gradient Orbs -->
-    <div class="absolute inset-0 overflow-hidden z-0">
-      <div class="orb orb-1"></div>
-      <div class="orb orb-2"></div>
-      <div class="orb orb-3"></div>
-    </div>
-
-    <!-- Content -->
-    <div class="relative z-20 max-w-6xl mx-auto px-6 w-full">
-      <div class="flex flex-col items-start">
-        <!-- Small intro text -->
-        <div class="overflow-hidden mb-6">
-          <p
-            class="font-inter text-sm tracking-widest text-white/40 uppercase slide-up"
+    <div
+      class="container relative z-10 max-w-7xl mx-auto flex flex-col items-center text-center"
+    >
+      <div class="flex flex-col gap-6 mb-8 reveal stagger-1">
+        <h1
+          class="text-[clamp(3.5rem,12vw,10rem)] font-[900] leading-[0.85] tracking-[-0.05em] uppercase italic"
+        >
+          <span
+            class="text-white/40 block text-[0.3em] font-bold tracking-[0.5em] not-italic mb-8"
+            >HELLO, I AM</span
           >
-            Full-Stack Developer
-          </p>
-        </div>
+          Srujan KM
+        </h1>
+      </div>
 
-        <!-- Main heading with typing effect -->
-        <div class="overflow-hidden mb-4">
-          <h1
-            class="text-7xl md:text-9xl font-space font-bold tracking-tighter slide-up-delay-1"
-          >
-            Srujan KM
-          </h1>
-        </div>
+      <div class="h-12 mb-8 reveal stagger-2">
+        <p
+          class="text-2xl md:text-4xl font-[500] text-white tracking-tight uppercase"
+        >
+          {displayText}<span class="animate-pulse text-white/50">_</span>
+        </p>
+      </div>
 
-        <!-- Animated subtitle -->
-        <div class="overflow-hidden mb-12 h-24 md:h-32">
-          <h2
-            class="text-4xl md:text-6xl font-space font-light tracking-tight slide-up-delay-2"
+      <div class="mb-16 reveal stagger-2">
+        <p
+          class="text-[10px] md:text-xs font-bold uppercase tracking-[0.6em] text-white/30"
+        >
+          Build your vision into a <span class="text-white"
+            >scalable digital reality.</span
           >
-            <span class="text-white/50">I'm a </span>
-            <span class="typing-text">{displayText}</span>
-            <span class="typing-cursor">|</span>
-          </h2>
-        </div>
+        </p>
+      </div>
 
-        <!-- Description -->
-        <div class="overflow-hidden mb-12 max-w-2xl">
-          <p
-            class="font-inter text-lg md:text-xl text-white/60 leading-relaxed slide-up-delay-3"
-          >
-            Co-Founder of Levion Studio, crafting scalable systems and elegant
-            solutions. Specializing in serverless architectures, modern web
-            technologies, and innovative digital experiences.
-          </p>
-        </div>
-
-        <!-- CTA Buttons -->
-        <div class="flex gap-4 slide-up-delay-4">
-          <a
-            href="#work"
-            class="group px-8 py-4 bg-white text-black font-inter font-medium relative overflow-hidden"
-            on:mouseenter={() => (isHovering = true)}
-            on:mouseleave={() => (isHovering = false)}
-          >
-            <span class="relative z-10">View Projects</span>
-            <div
-              class="absolute inset-0 bg-black translate-y-full group-hover:translate-y-0 transition-transform duration-300"
-            ></div>
-            <span
-              class="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-            >
-              View Projects
-            </span>
-          </a>
-          <a
-            href="#contact"
-            class="px-8 py-4 border border-white/30 font-inter font-medium hover:bg-white hover:text-black transition-all duration-300"
-            on:mouseenter={() => (isHovering = true)}
-            on:mouseleave={() => (isHovering = false)}
-          >
-            Get In Touch
-          </a>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-3 gap-8 mt-24 slide-up-delay-5">
-          <div>
-            <div class="text-4xl font-space font-bold mb-2">10+</div>
-            <div class="text-sm font-inter text-white/40">Projects</div>
-          </div>
-          <div>
-            <div class="text-4xl font-space font-bold mb-2">3+</div>
-            <div class="text-sm font-inter text-white/40">Years</div>
-          </div>
-          <div>
-            <div class="text-4xl font-space font-bold mb-2">20+</div>
-            <div class="text-sm font-inter text-white/40">Technologies</div>
-          </div>
-        </div>
+      <div
+        class="flex flex-col md:flex-row gap-6 reveal stagger-3 justify-center w-full max-w-xl mx-auto"
+      >
+        <a
+          href="mailto:developersrujan12@gmail.com"
+          class="flex-1 px-12 py-6 bg-white text-black font-bold uppercase text-xs tracking-[0.3em] rounded-2xl hover:scale-105 transition-all text-center cursor-none"
+          on:mouseenter={() => (isHovering = true)}
+          on:mouseleave={() => (isHovering = false)}
+        >
+          Start Your Project Build
+        </a>
+        <a
+          href="#work"
+          class="flex-1 px-12 py-6 bg-white/5 border border-white/10 text-white font-bold uppercase text-xs tracking-[0.3em] rounded-2xl hover:bg-white/10 transition-all text-center cursor-none"
+          on:mouseenter={() => (isHovering = true)}
+          on:mouseleave={() => (isHovering = false)}
+        >
+          View Case Studies
+        </a>
       </div>
     </div>
 
-    <!-- Scroll Indicator -->
-    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 z-20">
-      <div class="scroll-indicator">
-        <div class="scroll-line"></div>
+    <!-- Mouse Scroll Hint -->
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 reveal opacity-30">
+      <div
+        class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-2"
+      >
+        <div class="w-1 h-2 bg-white/50 rounded-full animate-bounce"></div>
       </div>
-      <p class="text-xs font-inter text-white/30 mt-4 tracking-widest">
-        SCROLL
-      </p>
     </div>
   </section>
 
-  <!-- Projects Section -->
-  <section id="work" class="relative py-40 overflow-hidden">
-    <!-- Background Effects -->
-    <div class="absolute inset-0 grid-background opacity-30"></div>
+  <!-- SINGLE LINE Infinite Tech Marquee -->
+  <section
+    class="py-16 bg-white/[0.02] overflow-hidden border-y border-white/5"
+  >
     <div
-      class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"
-    ></div>
-
-    <div class="relative z-10">
-      <div class="max-w-7xl mx-auto px-6 mb-24">
-        <div class="flex justify-between items-end">
-          <div class="max-w-2xl">
-            <div class="overflow-hidden mb-4">
-              <p
-                class="text-sm font-inter text-white/40 tracking-widest uppercase slide-up"
-              >
-                Portfolio
-              </p>
-            </div>
-            <div class="overflow-hidden mb-6">
-              <h2
-                class="text-6xl md:text-8xl font-space font-bold tracking-tighter slide-up-delay-1"
-              >
-                Selected Work
-              </h2>
-            </div>
-            <div class="overflow-hidden">
-              <p class="text-lg text-white/50 font-inter slide-up-delay-2">
-                Scroll horizontally to explore projects →
-              </p>
+      class="marquee-group flex opacity-30 hover:opacity-100 transition-opacity duration-700 group cursor-default"
+    >
+      <div class="flex whitespace-nowrap animate-marquee">
+        {#each [...techStack, ...techStack, ...techStack, ...techStack] as tech}
+          <div
+            class="flex items-center gap-8 md:gap-16 px-8 md:px-16 py-8 transition-all duration-500 hover:scale-125"
+          >
+            <div
+              class="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center filter drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+            >
+              <img
+                src={tech.logo}
+                alt={tech.name}
+                class="max-w-full max-h-full object-contain brightness-0 invert opacity-60 group-hover:opacity-90 transition-opacity"
+              />
             </div>
           </div>
-          <div class="hidden md:block">
-            <div class="text-7xl font-space font-bold text-white/5">
-              0{projects.length}
+        {/each}
+      </div>
+    </div>
+  </section>
+
+  <!-- Services / Expertise Section -->
+  <section id="services" class="py-32 relative overflow-hidden">
+    <div class="container max-w-7xl mx-auto px-6 relative">
+      <!-- Section Background Glow -->
+      <div
+        class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[150px] pointer-events-none -z-10"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[150px] pointer-events-none -z-10"
+      ></div>
+
+      <div
+        class="flex flex-col md:flex-row justify-between items-end mb-24 reveal"
+      >
+        <div class="max-w-4xl">
+          <h2
+            class="text-5xl md:text-7xl font-[800] tracking-tighter mb-8 leading-none text-transparent bg-clip-text bg-gradient-to-r from-white to-white/30"
+          >
+            Services I Provide
+          </h2>
+          <p class="text-white/40 text-lg md:text-xl font-medium max-w-md">
+            I provide end-to-end digital solutions, from stunning user
+            interfaces to robust backend architectures.
+          </p>
+        </div>
+        <div class="hidden md:block py-10 opacity-10">
+          <span class="text-[10rem] font-[800] leading-none text-white"
+            >01-06</span
+          >
+        </div>
+      </div>
+
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10"
+      >
+        <!-- Web Dev -->
+        <div
+          class="group relative p-12 rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-all duration-700 reveal stagger-1 overflow-hidden"
+        >
+          <div
+            class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/5 blur-[100px] rounded-full group-hover:bg-blue-500/10 transition-all duration-700"
+          ></div>
+          <div class="relative z-10 text-center md:text-left">
+            <span
+              class="text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-8 block font-elite italic"
+              >Step 01 / Web</span
+            >
+            <h3 class="text-3xl font-bold mb-6">
+              Custom Website<br />Development
+            </h3>
+            <p class="text-white/50 leading-relaxed mb-10 text-lg">
+              I build fast, professional websites that look great on any device.
+              My focus is on making your business easy to find and easy for your
+              customers to use.
+            </p>
+            <div
+              class="flex flex-wrap gap-2 pt-4 border-t border-white/5 justify-center md:justify-start"
+            >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Business Sites</span
+              >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >E-Commerce</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- App Dev -->
+        <div
+          class="group relative p-12 rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-all duration-700 reveal stagger-2 overflow-hidden"
+        >
+          <div
+            class="absolute -right-20 -top-20 w-64 h-64 bg-purple-500/5 blur-[100px] rounded-full group-hover:bg-purple-500/10 transition-all duration-700"
+          ></div>
+          <div class="relative z-10 text-center md:text-left">
+            <span
+              class="text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-8 block font-elite italic"
+              >Step 02 / Mobile</span
+            >
+            <h3 class="text-3xl font-bold mb-6">Mobile App<br />Development</h3>
+            <p class="text-white/50 leading-relaxed mb-10 text-lg">
+              I create high-quality apps for <span class="text-white font-bold"
+                >iPhone and Android</span
+              >. From new ideas to modernizing old apps, I handle everything
+              from start to finish.
+            </p>
+            <div
+              class="flex flex-wrap gap-2 pt-4 border-t border-white/5 justify-center md:justify-start"
+            >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >iOS Apps</span
+              >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Android Apps</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- SEO -->
+        <div
+          class="group relative p-12 rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-all duration-700 reveal stagger-3 overflow-hidden"
+        >
+          <div
+            class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full group-hover:bg-emerald-500/10 transition-all duration-700"
+          ></div>
+          <div class="relative z-10 text-center md:text-left">
+            <span
+              class="text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-8 block font-elite italic"
+              >Step 03 / Growth</span
+            >
+            <h3 class="text-3xl font-bold mb-6">SEO & Digital<br />Strategy</h3>
+            <p class="text-white/50 leading-relaxed mb-10 text-lg">
+              I help your business rank at the top of google to attract more
+              customers. I use advanced tools to make sure your brand is the
+              first one people see when they search.
+            </p>
+            <div
+              class="flex flex-wrap gap-2 pt-4 border-t border-white/5 justify-center md:justify-start"
+            >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Google Ranking</span
+              >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Visibility</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Full Stack -->
+        <div
+          class="group relative p-12 rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-all duration-700 reveal stagger-1 overflow-hidden transition-all"
+        >
+          <div
+            class="absolute -right-20 -top-20 w-64 h-64 bg-amber-500/5 blur-[100px] rounded-full group-hover:bg-amber-500/10 transition-all duration-700"
+          ></div>
+          <div class="relative z-10 text-center md:text-left">
+            <span
+              class="text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-8 block font-elite italic"
+              >Step 04 / Product</span
+            >
+            <h3 class="text-3xl font-bold mb-6">
+              Full-Stack Software<br />Solutions
+            </h3>
+            <p class="text-white/50 leading-relaxed mb-10 text-lg">
+              I build entire digital products from scratch. From the buttons you
+              click to the data behind it, I handle the whole "Full-Stack"
+              system for your business.
+            </p>
+            <div
+              class="flex flex-wrap gap-2 pt-4 border-t border-white/5 justify-center md:justify-start"
+            >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Complete Systems</span
+              >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Architecture</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Backend -->
+        <div
+          class="group relative p-12 rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-all duration-700 reveal stagger-2 overflow-hidden"
+        >
+          <div
+            class="absolute -right-20 -top-20 w-64 h-64 bg-rose-500/5 blur-[100px] rounded-full group-hover:bg-rose-500/10 transition-all duration-700"
+          ></div>
+          <div class="relative z-10 text-center md:text-left">
+            <span
+              class="text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-8 block font-elite italic"
+              >Step 05 / Engineering</span
+            >
+            <h3 class="text-3xl font-bold mb-6">Backend Development(Golang)</h3>
+            <p class="text-white/50 leading-relaxed mb-10 text-lg">
+              Using specialized tools like <span class="text-white font-bold"
+                >Golang</span
+              >, I build the "brain" of your app. This ensures your data is
+              fast, secure, and always reliable.
+            </p>
+            <div
+              class="flex flex-wrap gap-2 pt-4 border-t border-white/5 justify-center md:justify-start"
+            >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Golang</span
+              >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Security</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- UI/UX -->
+        <div
+          class="group relative p-12 rounded-[40px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-all duration-700 reveal stagger-3 overflow-hidden"
+        >
+          <div
+            class="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/5 blur-[100px] rounded-full group-hover:bg-cyan-500/10 transition-all duration-700"
+          ></div>
+          <div class="relative z-10 text-center md:text-left">
+            <span
+              class="text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-8 block font-elite italic"
+              >Step 06 / Vision</span
+            >
+            <h3 class="text-3xl font-bold mb-6">UI/UX Product<br />Design</h3>
+            <p class="text-white/50 leading-relaxed mb-10 text-lg">
+              I design how your product looks and feels. I create modern,
+              intuitive designs that make your software beautiful and exciting
+              for your users to use.
+            </p>
+            <div
+              class="flex flex-wrap gap-2 pt-4 border-t border-white/5 justify-center md:justify-start"
+            >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >Modern Design</span
+              >
+              <span
+                class="px-4 py-2 rounded-full border border-white/5 text-[10px] uppercase font-bold text-white/40"
+                >User Flows</span
+              >
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Horizontal Scroll Container -->
+  <!-- Professional Roadmap -->
+  <section
+    class="py-32 px-6 border-t border-white/5 relative overflow-hidden"
+    id="process"
+  >
+    <div
+      class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"
+    ></div>
+
+    <div class="container max-w-7xl mx-auto">
+      <div class="flex flex-col items-center text-center mb-24 reveal">
+        <span
+          class="text-xs font-bold uppercase tracking-[0.5em] text-white/30 mb-6 block"
+          >Our Path to Success</span
+        >
+        <h2
+          class="text-5xl md:text-7xl font-[800] tracking-tighter mb-8 italic uppercase text-white"
+        >
+          The Professional<br />Roadmap
+        </h2>
+        <p class="text-white/40 max-w-xl text-lg">
+          A simple, 4-step process designed to take your idea from a concept to
+          a high-performing digital reality.
+        </p>
+      </div>
+
       <div
-        bind:this={scrollContainer}
-        class="flex gap-8 px-6 md:px-12 overflow-x-auto scrollbar-thin pb-8"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
       >
-        {#each projects as project, i (project.title)}
-          <div class="project-card flex-shrink-0 w-[400px] md:w-[500px]">
+        <!-- Step 1 -->
+        <div
+          class="group relative p-10 rounded-[35px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all duration-500 reveal stagger-1"
+        >
+          <span
+            class="text-5xl font-black text-white/5 mb-8 block group-hover:text-white/10 transition-colors uppercase italic"
+            >01</span
+          >
+          <h3
+            class="text-xl font-bold mb-4 uppercase tracking-wider text-white"
+          >
+            Goal Setting & Planning
+          </h3>
+          <p class="text-white/40 text-sm leading-relaxed">
+            We start by understanding your business goals, target audience, and
+            exactly what you need to achieve success.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div
+          class="group relative p-10 rounded-[35px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all duration-500 reveal stagger-2"
+        >
+          <span
+            class="text-5xl font-black text-white/5 mb-8 block group-hover:text-white/10 transition-colors uppercase italic"
+            >02</span
+          >
+          <h3
+            class="text-xl font-bold mb-4 uppercase tracking-wider text-white"
+          >
+            Blueprint & Design
+          </h3>
+          <p class="text-white/40 text-sm leading-relaxed">
+            I create a visual and technical blueprint of your product, ensuring
+            everything is planned perfectly before we write any code.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div
+          class="group relative p-10 rounded-[35px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all duration-500 reveal stagger-3"
+        >
+          <span
+            class="text-5xl font-black text-white/5 mb-8 block group-hover:text-white/10 transition-colors uppercase italic"
+            >03</span
+          >
+          <h3
+            class="text-xl font-bold mb-4 uppercase tracking-wider text-white"
+          >
+            Building Your Product
+          </h3>
+          <p class="text-white/40 text-sm leading-relaxed">
+            This is where the magic happens. I build your software using the
+            latest tech to ensure it's fast, secure, and easy to use.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div
+          class="group relative p-10 rounded-[35px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all duration-500 reveal stagger-4"
+        >
+          <span
+            class="text-5xl font-black text-white/5 mb-8 block group-hover:text-white/10 transition-colors uppercase italic"
+            >04</span
+          >
+          <h3
+            class="text-xl font-bold mb-4 uppercase tracking-wider text-white"
+          >
+            Launching & Growing
+          </h3>
+          <p class="text-white/40 text-sm leading-relaxed">
+            We launch your product to the world and monitor its performance,
+            making sure it scales as your business grows.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section (Case-Study Style) -->
+  <section id="work" class="py-32 bg-[#050505]">
+    <div class="container max-w-7xl mx-auto px-6">
+      <div
+        class="flex flex-col md:flex-row justify-between items-end mb-24 reveal"
+      >
+        <div class="max-w-2xl">
+          <h2
+            class="text-6xl md:text-9xl font-[800] tracking-tighter mb-8 leading-none"
+          >
+            High-Impact<br />Deliverables
+          </h2>
+          <p class="text-white/40 text-lg md:text-xl font-medium max-w-md">
+            Transforming technical complexity into seamless business value
+            through professional engineering.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {#each projects as project, i}
+          <div
+            role="link"
+            tabindex="0"
+            on:click={() => project.link && window.open(project.link, "_blank")}
+            on:keydown={(e) =>
+              e.key === "Enter" &&
+              project.link &&
+              window.open(project.link, "_blank")}
+            class="group relative aspect-[14/16] rounded-[48px] overflow-hidden bg-[#111] reveal stagger-{i +
+              1} border border-white/5 cursor-none block"
+            on:mouseenter={() => (isHovering = true)}
+            on:mouseleave={() => (isHovering = false)}
+          >
+            <!-- Project Image -->
+            <img
+              src={project.image}
+              alt={project.title}
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 group-hover:opacity-100"
+            />
             <div
-              class="project-card-inner border border-white/10 p-10 h-full hover:border-white/30 transition-all duration-700 group relative overflow-hidden bg-black/40 backdrop-blur-sm"
+              class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"
+            ></div>
+
+            <!-- Dynamic Content Overlay -->
+            <div
+              class="absolute inset-0 p-12 flex flex-col justify-end z-20 group-hover:bg-white/5 transition-all duration-700"
             >
-              <!-- Animated corner accent -->
               <div
-                class="absolute top-0 right-0 w-32 h-32 border-t-2 border-r-2 border-white/0 group-hover:border-white/20 transition-all duration-700"
-              ></div>
-
-              <!-- Hover gradient effect -->
-              <div
-                class="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-              ></div>
-
-              <div class="relative z-10">
-                <div class="flex justify-between items-start mb-8">
-                  <span
-                    class="text-7xl font-space font-bold text-white/5 group-hover:text-white/10 transition-colors duration-700"
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span class="text-sm text-white/40 font-inter tracking-wider"
-                    >{project.year}</span
-                  >
-                </div>
-
-                <h3
-                  class="text-3xl font-space font-bold mb-5 tracking-tight group-hover:tracking-tighter transition-all duration-300"
+                class="translate-y-8 group-hover:translate-y-0 transition-transform duration-700"
+              >
+                <span
+                  class="text-xs font-bold uppercase tracking-[0.4em] text-white/40 mb-4 block"
+                  >{project.category}</span
                 >
+                <h3 class="text-4xl font-bold mb-6 text-white leading-tight">
                   {project.title}
                 </h3>
 
-                <p
-                  class="text-white/60 font-inter leading-relaxed mb-10 text-sm"
+                <div
+                  class="grid grid-cols-1 gap-2 opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100 mb-8"
                 >
-                  {project.description}
-                </p>
+                  <p
+                    class="text-[12px] font-bold text-white/60 mb-3 leading-relaxed"
+                  >
+                    <span class="text-white block mb-1">STRATEGIC GOAL:</span>
+                    {project.description ||
+                      "Deploying high-performance digital architecture for global scalability."}
+                  </p>
 
-                <div class="flex flex-wrap gap-2 mb-10">
-                  {#each project.tags as tag}
-                    <span
-                      class="text-xs font-inter px-4 py-2 border border-white/20 text-white/70 hover:border-white/40 hover:bg-white/5 transition-all duration-300"
+                  {#if project.appLink}
+                    <a
+                      href={project.appLink}
+                      class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors cursor-none w-fit pb-4"
+                      on:mouseenter={() => (isHovering = true)}
+                      on:mouseleave={() => (isHovering = false)}
                     >
-                      {tag}
-                    </span>
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        ><path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        /></svg
+                      >
+                      Download Android Solution
+                    </a>
+                  {/if}
+                </div>
+
+                <div
+                  class="flex flex-wrap gap-2 text-white/30 text-xs font-bold uppercase tracking-widest pt-6 border-t border-white/10 group-hover:text-white transition-colors duration-700"
+                >
+                  {#each project.stack as tech}
+                    <span>{tech}</span>
+                    {#if tech !== project.stack[project.stack.length - 1]}
+                      <span class="mx-1">•</span>
+                    {/if}
                   {/each}
                 </div>
-
-                <div
-                  class="flex items-center gap-3 text-sm font-inter font-medium opacity-50 group-hover:opacity-100 transition-all duration-500 group-hover:gap-4"
-                >
-                  <span class="tracking-wide">Explore Project</span>
-                  <span class="text-xl">→</span>
-                </div>
               </div>
             </div>
           </div>
@@ -547,859 +851,292 @@
     </div>
   </section>
 
-  <!-- Experience Section -->
-  <section id="about" class="relative py-40 overflow-hidden">
-    <!-- Background Effects -->
-    <div class="absolute inset-0 grid-background opacity-20"></div>
-    <div
-      class="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"
-    ></div>
-
-    <div class="relative z-10 max-w-6xl mx-auto px-6">
-      <div class="mb-24">
-        <div class="overflow-hidden mb-4">
-          <p
-            class="text-sm font-inter text-white/40 tracking-widest uppercase slide-up"
-          >
-            Background
-          </p>
-        </div>
-        <div class="overflow-hidden">
-          <h2
-            class="text-6xl md:text-8xl font-space font-bold tracking-tighter slide-up-delay-1"
-          >
-            Experience
-          </h2>
-        </div>
-      </div>
-
-      <div class="space-y-24">
-        {#each experiences as exp, i}
-          <div class="experience-item group">
-            <div
-              class="relative border-l-2 border-white/10 pl-10 hover:border-white/30 transition-all duration-700"
-            >
-              <!-- Animated dot -->
-              <div
-                class="absolute -left-[9px] top-0 w-4 h-4 bg-black border-2 border-white/20 rounded-full group-hover:border-white/60 group-hover:scale-150 transition-all duration-500"
-              ></div>
-
-              <div
-                class="bg-black/30 backdrop-blur-sm border border-white/5 p-8 hover:border-white/10 transition-all duration-500"
-              >
-                <div
-                  class="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-6"
-                >
-                  <div>
-                    <div class="overflow-hidden mb-3">
-                      <h3
-                        class="text-4xl md:text-5xl font-space font-bold tracking-tighter"
-                      >
-                        {exp.company}
-                      </h3>
-                    </div>
-                    <p
-                      class="text-white/70 font-inter font-medium text-xl tracking-wide"
-                    >
-                      {exp.role}
-                    </p>
-                  </div>
-                  <div
-                    class="text-white/40 font-inter text-sm mt-4 lg:mt-0 lg:text-right space-y-1"
-                  >
-                    <p class="text-lg">{exp.period}</p>
-                    <p class="tracking-wider">{exp.location}</p>
-                  </div>
-                </div>
-
-                <div class="w-16 h-px bg-white/20 mb-6"></div>
-
-                <p
-                  class="text-white/60 font-inter leading-relaxed text-lg max-w-3xl"
-                >
-                  {exp.description}
-                </p>
-              </div>
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
-  </section>
-
-  <!-- Tech Stack Carousel -->
-  <section class="relative py-40 overflow-hidden">
-    <!-- Background Effects -->
-    <div class="absolute inset-0 grid-background opacity-20"></div>
-    <div
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl"
-    ></div>
-
-    <div class="relative z-10">
-      <div class="max-w-7xl mx-auto px-6 mb-20">
-        <div class="overflow-hidden mb-4">
-          <p
-            class="text-sm font-inter text-white/40 tracking-widest uppercase slide-up"
-          >
-            Technologies
-          </p>
-        </div>
-        <div class="overflow-hidden">
-          <h2
-            class="text-6xl md:text-8xl font-space font-bold tracking-tighter slide-up-delay-1 mb-6"
-          >
-            Tech Stack
-          </h2>
-        </div>
-        <div class="overflow-hidden">
-          <p class="text-lg text-white/40 font-inter slide-up-delay-2">
-            Tools and technologies I work with
-          </p>
-        </div>
-      </div>
-
-      <!-- First Row -->
-      <div class="marquee-wrapper mb-8">
-        <div class="marquee">
-          {#each [...techStack, ...techStack] as tech}
-            <div class="tech-tag-logo">
-              <img src={tech.logo} alt={tech.name} class="tech-logo" />
-              <span>{tech.name}</span>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      <!-- Second Row -->
-      <div class="marquee-wrapper-reverse">
-        <div class="marquee-reverse">
-          {#each [...techStack, ...techStack] as tech}
-            <div class="tech-tag-logo">
-              <img src={tech.logo} alt={tech.name} class="tech-logo" />
-              <span>{tech.name}</span>
-            </div>
-          {/each}
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact Section -->
-  <section id="contact" class="relative py-40 overflow-hidden">
-    <!-- Background Effects -->
-    <div class="absolute inset-0 grid-background opacity-30"></div>
-    <div
-      class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"
-    ></div>
-    <div
-      class="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"
-    ></div>
-
-    <div class="relative z-10 max-w-6xl mx-auto px-6">
-      <div class="mb-20">
-        <div class="overflow-hidden mb-4">
-          <p
-            class="text-sm font-inter text-white/40 tracking-widest uppercase slide-up"
-          >
-            Get In Touch
-          </p>
-        </div>
-        <div class="overflow-hidden mb-8">
-          <h2
-            class="text-6xl md:text-9xl font-space font-bold tracking-tighter slide-up-delay-1"
-          >
-            Let's Work<br />Together
-          </h2>
-        </div>
-        <div class="overflow-hidden max-w-3xl">
-          <p
-            class="text-xl md:text-2xl text-white/50 font-inter leading-relaxed slide-up-delay-2"
-          >
-            Available for freelance projects, full-time opportunities, and
-            collaborations. Let's build something amazing.
-          </p>
-        </div>
-      </div>
-
-      <div class="flex flex-col md:flex-row gap-4 mb-24 slide-up-delay-3">
-        <a
-          href="mailto:developersrujan12@gmail.com"
-          class="group px-12 py-6 bg-white text-black font-inter font-medium text-lg relative overflow-hidden"
+  <!-- Client Reviews Section -->
+  <section id="reviews" class="py-32 bg-white/[0.01]">
+    <div class="container max-w-7xl mx-auto px-6">
+      <div class="text-center mb-24 reveal">
+        <h2
+          class="text-4xl md:text-7xl font-[800] mb-8 tracking-tighter uppercase italic"
         >
-          <span class="relative z-10">Send Email</span>
-          <div
-            class="absolute inset-0 bg-black translate-x-full group-hover:translate-x-0 transition-transform duration-500"
-          ></div>
-          <span
-            class="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"
-          >
-            Send Email
-          </span>
-        </a>
-        <a
-          href="https://linkedin.com/in/srujan-km-12"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-12 py-6 border border-white/30 font-inter font-medium text-lg hover:bg-white hover:text-black transition-all duration-500"
-        >
-          LinkedIn
-        </a>
-        <a
-          href="https://github.com/Srujankm12"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-12 py-6 border border-white/30 font-inter font-medium text-lg hover:bg-white hover:text-black transition-all duration-500"
-        >
-          GitHub
-        </a>
+          Trusted by<br />Global Partners
+        </h2>
+        <p class="text-white/40 uppercase tracking-[0.3em] text-xs font-bold">
+          Proven Results via High-Performance Collaboration
+        </p>
       </div>
 
       <div
-        class="grid md:grid-cols-2 gap-16 pt-16 border-t border-white/10 slide-up-delay-4"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8"
       >
-        <div class="space-y-6">
-          <p
-            class="text-sm font-inter text-white/40 tracking-widest uppercase mb-6"
+        {#each reviews as review}
+          <div
+            class="p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl reveal stagger-1 hover:border-white/40 transition-colors duration-500 group flex flex-col justify-between"
           >
-            Contact
-          </p>
-          <div class="space-y-4 text-white/60 font-inter">
-            <a
-              href="tel:+918310029635"
-              class="block text-2xl hover:text-white transition-colors duration-300 group"
+            <div>
+              <div class="mb-8">
+                <h4 class="font-bold text-sm">{review.name}</h4>
+                <p class="text-[10px] text-white/40 uppercase tracking-widest">
+                  {review.role}
+                </p>
+              </div>
+              <p class="text-white/70 leading-relaxed italic text-sm">
+                "{review.content}"
+              </p>
+            </div>
+            <div
+              class="mt-8 flex gap-1 opacity-20 group-hover:opacity-100 transition-opacity"
             >
-              <span
-                class="inline-block group-hover:translate-x-2 transition-transform duration-300"
-              >
-                +91 8310029635
-              </span>
-            </a>
-            <a
-              href="mailto:developersrujan12@gmail.com"
-              class="block text-2xl hover:text-white transition-colors duration-300 group"
-            >
-              <span
-                class="inline-block group-hover:translate-x-2 transition-transform duration-300"
-              >
-                developersrujan12@gmail.com
-              </span>
-            </a>
+              {#each Array(Math.floor(review.stars)) as _}
+                <span class="text-amber-400">★</span>
+              {/each}
+              {#if review.stars % 1 !== 0}
+                <span class="text-amber-400">☆</span>
+              {/if}
+            </div>
           </div>
-        </div>
-        <div class="space-y-6">
-          <p
-            class="text-sm font-inter text-white/40 tracking-widest uppercase mb-6"
+        {/each}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="py-32 bg-[#050505] border-t border-white/5">
+    <div class="container max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-24">
+        <div class="reveal">
+          <h2
+            class="text-6xl md:text-8xl font-[800] tracking-tighter mb-8 text-white leading-tight uppercase italic"
           >
-            Location
+            Common <br />Questions
+          </h2>
+          <p class="text-white/40 text-lg md:text-xl font-medium max-w-md">
+            Find answers to common questions about timelines, costs, and my
+            professional process.
           </p>
-          <p class="text-white/60 font-inter text-2xl leading-relaxed">
-            Bengaluru, Karnataka<br />India
-          </p>
+        </div>
+
+        <div class="space-y-12">
+          {#each [{ q: "How long does a project take?", a: "Most custom projects take 6-12 weeks, depending on the complexity of your requirements and goals." }, { q: "What technology do you use?", a: "I specialize in high-performance stacks like Golang, Next.js 15 (React), and SvelteKit because they are the most secure and scalable for modern business success." }, { q: "Can we work together remotely?", a: "Yes! I work with business owners globally using clear, daily communication to ensure alignment." }, { q: "Do you help with existing apps?", a: "Absolutely. I can help migrate your old software to the cloud or update it with new features to improve performance." }, { q: "Is my business data safe?", a: "Security is my top priority. I build every system with bank-level security to protect your business and your users." }] as faq, i}
+            <div class="reveal stagger-{i + 1} border-b border-white/5 pb-12">
+              <h3
+                class="text-xl font-bold mb-4 text-white leading-tight uppercase tracking-wide opacity-100 italic"
+              >
+                {faq.q}
+              </h3>
+              <p class="text-white/40 leading-relaxed font-medium">
+                {faq.a}
+              </p>
+            </div>
+          {/each}
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Social Links -->
-      <div class="mt-24 pt-16 border-t border-white/10">
-        <div
-          class="flex flex-col md:flex-row justify-between items-start gap-8"
+  <!-- Final Contact Section -->
+  <section id="contact" class="py-40 bg-[#050505] relative overflow-hidden">
+    <!-- Sophisticated Abstract Glow -->
+    <div
+      class="absolute -top-[50%] -left-[20%] w-[100%] h-[100%] bg-white/[0.02] blur-[150px] rounded-full"
+    ></div>
+    <div
+      class="absolute -bottom-[50%] -right-[20%] w-[100%] h-[100%] bg-blue-500/[0.02] blur-[150px] rounded-full"
+    ></div>
+
+    <div class="container max-w-5xl mx-auto px-6 text-center relative z-10">
+      <div class="reveal">
+        <span
+          class="text-xs font-bold uppercase tracking-[0.6em] text-white/30 mb-8 block reveal stagger-1"
+          >Ready to Scale?</span
         >
-          <div>
-            <p
-              class="text-sm font-inter text-white/40 tracking-widest uppercase mb-4"
+        <h2
+          class="text-6xl md:text-9xl font-[800] tracking-tighter mb-20 leading-[0.85] uppercase italic"
+        >
+          Let's Build Your<br />Digital Legacy
+        </h2>
+
+        <div class="flex flex-col items-center gap-16 reveal stagger-2">
+          <a
+            href="mailto:developersrujan12@gmail.com"
+            class="w-full md:w-auto px-20 py-10 bg-white text-black font-bold uppercase text-sm tracking-[0.2em] rounded-full hover:scale-105 transition-all text-center cursor-none shadow-[0_0_50px_rgba(255,255,255,0.1)]"
+            on:mouseenter={() => (isHovering = true)}
+            on:mouseleave={() => (isHovering = false)}
+          >
+            Start Your Project Build
+          </a>
+
+          <div
+            class="flex flex-wrap gap-12 items-center pt-16 border-t border-white/5 w-full justify-center"
+          >
+            <a
+              href="https://www.linkedin.com/in/srujan-km-12s/"
+              target="_blank"
+              class="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors cursor-none py-2"
+              on:mouseenter={() => (isHovering = true)}
+              on:mouseleave={() => (isHovering = false)}>LinkedIn</a
             >
-              Connect
-            </p>
-            <div class="flex flex-wrap gap-6 text-white/40 font-inter">
-              <a
-                href="https://linkedin.com/in/srujan-km-12"
-                target="_blank"
-                class="hover:text-white transition-colors duration-300"
-              >
-                Personal LinkedIn ↗
-              </a>
-              <a
-                href="https://github.com/Srujankm12"
-                target="_blank"
-                class="hover:text-white transition-colors duration-300"
-              >
-                GitHub ↗
-              </a>
-            </div>
-          </div>
-          <div>
-            <p
-              class="text-sm font-inter text-white/40 tracking-widest uppercase mb-4"
+            <a
+              href="https://github.com/Srujankm12"
+              target="_blank"
+              class="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors cursor-none py-2"
+              on:mouseenter={() => (isHovering = true)}
+              on:mouseleave={() => (isHovering = false)}>GitHub</a
             >
-              Levion Studio
-            </p>
-            <div class="flex flex-wrap gap-6 text-white/40 font-inter">
-              <a
-                href="https://www.linkedin.com/company/levion-studio/"
-                target="_blank"
-                class="hover:text-white transition-colors duration-300"
-              >
-                Company LinkedIn ↗
-              </a>
-              <a
-                href="https://www.instagram.com/levionstudi0/"
-                target="_blank"
-                class="hover:text-white transition-colors duration-300"
-              >
-                Instagram ↗
-              </a>
-            </div>
+            <a
+              href="https://x.com/DeveloperS29854"
+              target="_blank"
+              class="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors cursor-none py-2"
+              on:mouseenter={() => (isHovering = true)}
+              on:mouseleave={() => (isHovering = false)}>Twitter</a
+            >
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="relative border-t border-white/5 overflow-hidden">
-    <!-- Background Effects -->
-    <div class="absolute inset-0 grid-background opacity-10"></div>
-    <div
-      class="absolute top-0 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"
-    ></div>
-
-    <div class="relative z-10">
-      <!-- Main Footer Content -->
-      <div class="max-w-7xl mx-auto px-6 py-20">
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          <!-- Brand Column -->
-          <div class="lg:col-span-1">
-            <div class="mb-6">
-              <h3 class="text-4xl font-space font-bold mb-3 tracking-tight">
-                Levion Studio
-              </h3>
-              <p class="text-white/50 font-inter text-sm leading-relaxed">
-                Crafting digital experiences with modern technologies and
-                innovative solutions.
-              </p>
-            </div>
-            <div class="flex gap-4">
-              <a
-                href="https://www.linkedin.com/company/levion-studio/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="w-12 h-12 border border-white/20 flex items-center justify-center hover:border-white/40 hover:bg-white/5 transition-all duration-300 group"
-              >
-                <span class="text-lg group-hover:scale-110 transition-transform"
-                  >in</span
-                >
-              </a>
-              <a
-                href="https://www.instagram.com/levionstudi0/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="w-12 h-12 border border-white/20 flex items-center justify-center hover:border-white/40 hover:bg-white/5 transition-all duration-300 group"
-              >
-                <svg
-                  class="w-5 h-5 group-hover:scale-110 transition-transform"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
-                  />
-                </svg>
-              </a>
-              <a
-                href="https://github.com/Srujankm12"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="w-12 h-12 border border-white/20 flex items-center justify-center hover:border-white/40 hover:bg-white/5 transition-all duration-300 group"
-              >
-                <svg
-                  class="w-5 h-5 group-hover:scale-110 transition-transform"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-                  />
-                </svg>
-              </a>
-            </div>
-          </div>
-
-          <!-- Quick Links -->
-          <div>
-            <h4
-              class="text-sm font-inter text-white/40 tracking-widest uppercase mb-6"
-            >
-              Navigation
-            </h4>
-            <ul class="space-y-3">
-              <li>
-                <a
-                  href="#hero"
-                  class="text-white/60 hover:text-white font-inter transition-colors duration-300 flex items-center gap-2 group"
-                >
-                  <span
-                    class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >→</span
-                  >
-                  <span>Home</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#work"
-                  class="text-white/60 hover:text-white font-inter transition-colors duration-300 flex items-center gap-2 group"
-                >
-                  <span
-                    class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >→</span
-                  >
-                  <span>Projects</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#about"
-                  class="text-white/60 hover:text-white font-inter transition-colors duration-300 flex items-center gap-2 group"
-                >
-                  <span
-                    class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >→</span
-                  >
-                  <span>Experience</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  class="text-white/60 hover:text-white font-inter transition-colors duration-300 flex items-center gap-2 group"
-                >
-                  <span
-                    class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >→</span
-                  >
-                  <span>Contact</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Services -->
-          <div>
-            <h4
-              class="text-sm font-inter text-white/40 tracking-widest uppercase mb-6"
-            >
-              Services
-            </h4>
-            <ul class="space-y-3 text-white/60 font-inter text-sm">
-              <li>Web Development</li>
-              <li>Backend Systems</li>
-              <li>API Development</li>
-              <li>Cloud Solutions</li>
-              <li>Mobile Apps</li>
-              <li>UI/UX Design</li>
-            </ul>
-          </div>
-
-          <!-- Contact Info -->
-          <div>
-            <h4
-              class="text-sm font-inter text-white/40 tracking-widest uppercase mb-6"
-            >
-              Get In Touch
-            </h4>
-            <ul class="space-y-4">
-              <li>
-                <a
-                  href="mailto:developersrujan12@gmail.com"
-                  class="text-white/60 hover:text-white font-inter text-sm transition-colors duration-300 block"
-                >
-                  developersrujan12@gmail.com
-                </a>
-              </li>
-              <li>
-                <a
-                  href="tel:+918310029635"
-                  class="text-white/60 hover:text-white font-inter text-sm transition-colors duration-300 block"
-                >
-                  +91 8310029635
-                </a>
-              </li>
-              <li class="text-white/40 font-inter text-sm">
-                Bengaluru, Karnataka<br />India
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="w-full h-px bg-white/5 mb-12"></div>
-
-        <!-- Bottom Bar -->
-        <div
-          class="flex flex-col md:flex-row justify-between items-center gap-6"
-        >
-          <div
-            class="flex flex-col md:flex-row items-center gap-6 text-sm text-white/30 font-inter"
+  <!-- Navigation Info -->
+  <footer class="py-24 bg-[#050505] border-t border-white/5">
+    <div class="container max-w-7xl mx-auto px-6">
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-16 text-center md:text-left mb-24"
+      >
+        <div class="reveal stagger-1">
+          <span
+            class="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20 block mb-6"
+            >Global Availability</span
           >
-            <p>© 2025 Srujan KM</p>
-            <span class="hidden md:block">•</span>
-            <p>Levion Studio</p>
-            <span class="hidden md:block">•</span>
-            <p>All rights reserved</p>
-          </div>
-
-          <div class="flex items-center gap-6 text-sm text-white/30 font-inter">
-            <a
-              href="https://linkedin.com/in/srujan-km-12"
-              target="_blank"
-              class="hover:text-white transition-colors duration-300"
+          <p class="text-xl font-bold text-white/80 tracking-tight">
+            Bengaluru • India<br /><span
+              class="text-white/30 font-medium italic text-sm"
+              >Working with founders worldwide</span
             >
-              Personal
-            </a>
-            <span>•</span>
-            <span>Made with ❤️ in India</span>
-          </div>
+          </p>
+        </div>
+        <div class="reveal stagger-2">
+          <span
+            class="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20 block mb-6"
+            >Core Services</span
+          >
+          <p class="text-xl font-bold text-white/80 tracking-tight">
+            Full-Stack Solutions<br /><span
+              class="text-white/30 font-medium italic text-sm"
+              >Consulting & Architecture</span
+            >
+          </p>
+        </div>
+        <div class="reveal stagger-3">
+          <span
+            class="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20 block mb-6"
+            >Direct Contact</span
+          >
+          <p
+            class="text-xl font-bold text-white/80 tracking-tight underline underline-offset-8 decoration-white/10"
+          >
+            developersrujan12@gmail.com<br /><span
+              class="text-white/30 font-medium text-sm">+91 83100 29635</span
+            >
+          </p>
         </div>
       </div>
-
-      <!-- Scroll to Top Button -->
-      <div class="absolute bottom-8 right-8">
-        <button
-          on:click={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          class="w-12 h-12 border border-white/20 flex items-center justify-center hover:border-white/40 hover:bg-white/5 transition-all duration-300 group"
-        >
-          <span class="text-lg group-hover:-translate-y-1 transition-transform"
-            >↑</span
-          >
-        </button>
+      <div
+        class="flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-white/5 text-[9px] font-bold uppercase tracking-[0.5em] text-white/10"
+      >
+        <p>© 2026 SKM — FULL STACK SOFTWARE SOLUTIONS</p>
+        <p class="hover:text-white/30 transition-colors">EST. IN BENGALURU</p>
       </div>
     </div>
   </footer>
 </div>
 
 <style>
-  .font-space {
-    font-family: "Space Grotesk", sans-serif;
-  }
-
-  .font-inter {
-    font-family: "Inter", sans-serif;
-  }
-
   :global(html) {
+    font-family: "Plus Jakarta Sans", sans-serif;
     scroll-behavior: smooth;
+    cursor: none;
+    background-color: #050505;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "Outfit", sans-serif;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :global(.reveal-visible) {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  .stagger-1 {
+    transition-delay: 0.1s;
+  }
+  .stagger-2 {
+    transition-delay: 0.2s;
+  }
+  .stagger-3 {
+    transition-delay: 0.3s;
+  }
+  .stagger-4 {
+    transition-delay: 0.4s;
   }
 
   /* Custom Cursor */
-  .custom-cursor {
-    position: fixed;
-    width: 20px;
-    height: 20px;
-    border: 2px solid white;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    mix-blend-mode: difference;
-    transition:
-      width 0.3s,
-      height 0.3s;
-  }
-
-  .cursor-hovering {
-    width: 40px;
-    height: 40px;
-  }
-
-  /* Grid Background */
-  .grid-background {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: gridMove 20s linear infinite;
-  }
-
-  @keyframes gridMove {
-    0% {
-      background-position: 0 0;
-    }
-    100% {
-      background-position: 50px 50px;
-    }
-  }
-
-  /* Gradient Orbs */
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.15;
-    animation: float 20s ease-in-out infinite;
-  }
-
-  .orb-1 {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, white, transparent);
-    top: 10%;
-    left: 10%;
-    animation-delay: 0s;
-  }
-
-  .orb-2 {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, white, transparent);
-    bottom: 10%;
-    right: 10%;
-    animation-delay: -10s;
-  }
-
-  .orb-3 {
-    width: 450px;
-    height: 450px;
-    background: radial-gradient(circle, white, transparent);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation-delay: -5s;
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-    }
-    33% {
-      transform: translate(50px, -50px) scale(1.1);
-    }
-    66% {
-      transform: translate(-50px, 50px) scale(0.9);
-    }
-  }
-
-  /* Typing Animation */
-  .typing-text {
-    color: white;
-  }
-
-  .typing-cursor {
-    animation: blink 1s step-end infinite;
-  }
-
-  @keyframes blink {
-    0%,
-    50% {
-      opacity: 1;
-    }
-    51%,
-    100% {
-      opacity: 0;
-    }
-  }
-
-  /* Slide up animations */
-  .slide-up {
-    animation: slideUp 0.8s ease-out;
-  }
-
-  .slide-up-delay-1 {
-    animation: slideUp 0.8s ease-out 0.1s both;
-  }
-
-  .slide-up-delay-2 {
-    animation: slideUp 0.8s ease-out 0.2s both;
-  }
-
-  .slide-up-delay-3 {
-    animation: slideUp 0.8s ease-out 0.3s both;
-  }
-
-  .slide-up-delay-4 {
-    animation: slideUp 0.8s ease-out 0.4s both;
-  }
-
-  .slide-up-delay-5 {
-    animation: slideUp 0.8s ease-out 0.5s both;
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Scroll Indicator */
-  .scroll-indicator {
-    width: 2px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.1);
-    position: relative;
-    margin: 0 auto;
-  }
-
-  .scroll-line {
-    width: 100%;
-    height: 20px;
+  .cursor-dot {
+    width: 8px;
+    height: 8px;
     background: white;
-    position: absolute;
-    top: 0;
-    animation: scrollDown 2s ease-in-out infinite;
-  }
-
-  @keyframes scrollDown {
-    0% {
-      top: 0;
-      opacity: 1;
-    }
-    100% {
-      top: 40px;
-      opacity: 0;
-    }
-  }
-
-  /* Scrollbar */
-  .scrollbar-thin::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-  }
-
-  /* Project Cards */
-  .project-card {
-    animation: fadeInUp 0.6s ease-out both;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Experience Items */
-  .experience-item {
-    animation: fadeInLeft 0.8s ease-out both;
-  }
-
-  @keyframes fadeInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    border-radius: 50%;
   }
 
   /* Marquee */
-  .marquee-wrapper,
-  .marquee-wrapper-reverse {
-    overflow: hidden;
-    white-space: nowrap;
-    position: relative;
-  }
-
-  .marquee,
-  .marquee-reverse {
-    display: inline-flex;
-    gap: 1.5rem;
-    animation: scroll-left 45s linear infinite;
-  }
-
-  .marquee-reverse {
-    animation: scroll-right 45s linear infinite;
-  }
-
-  @keyframes scroll-left {
+  @keyframes marquee {
     0% {
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-50%);
+      transform: translateX(-25%);
     }
   }
 
-  @keyframes scroll-right {
+  @keyframes marquee-reverse {
     0% {
-      transform: translateX(-50%);
+      transform: translateX(-25%);
     }
     100% {
       transform: translateX(0);
     }
   }
 
-  .tech-tag {
-    display: inline-block;
-    padding: 1.25rem 2.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    font-family: "Inter", sans-serif;
-    font-size: 0.875rem;
-    font-weight: 500;
-    white-space: nowrap;
-    transition: all 0.3s ease;
+  .animate-marquee {
+    animation: marquee 15s linear infinite;
   }
 
-  .tech-tag:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.05);
+  .animate-marquee-reverse {
+    animation: marquee-reverse 15s linear infinite;
   }
 
-  .tech-tag-logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.25rem 2.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    font-family: "Inter", sans-serif;
-    font-size: 0.875rem;
-    font-weight: 500;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-  }
-
-  .tech-tag-logo:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-2px);
-  }
-
-  .tech-logo {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    filter: brightness(0) invert(1);
-  }
-
-  .tech-tag-logo:hover .tech-logo {
-    filter: none;
-  }
-
-  .marquee-wrapper:hover .marquee,
-  .marquee-wrapper-reverse:hover .marquee-reverse {
+  .group:hover .animate-marquee,
+  .group:hover .animate-marquee-reverse {
     animation-play-state: paused;
   }
 
-  /* Video */
+  /* Selection Override */
+  ::selection {
+    background: rgba(255, 255, 255, 0.99);
+    color: black;
+  }
+
+  /* Video Smoothness */
   video {
-    transition: opacity 1s ease-in-out;
+    transition: opacity 2s ease-in-out;
   }
 </style>
